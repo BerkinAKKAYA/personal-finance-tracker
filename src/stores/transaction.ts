@@ -18,16 +18,5 @@ export const useTransactionStore = defineStore('transaction', {
 			this.transactions.push(transaction);
 		},
 	},
-	getters: {
-		earnings: (state): Transaction[] => {
-			return state.transactions.filter(
-				(transaction) => transaction.type == 'earning'
-			);
-		},
-		spendings: (state): Transaction[] => {
-			return state.transactions.filter(
-				(transaction) => transaction.type == 'spending'
-			);
-		},
-	},
+	getters: {},
 });

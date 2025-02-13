@@ -5,9 +5,11 @@ import TransactionList from './components/TransactionList.vue';
 </script>
 
 <template>
-	<Header />
-	<AddTransaction />
-	<TransactionList />
+	<div class="flex flex-col gap-16">
+		<Header />
+		<AddTransaction />
+		<TransactionList />
+	</div>
 </template>
 
 <style scoped>

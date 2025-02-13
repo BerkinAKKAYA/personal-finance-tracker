@@ -5,6 +5,6 @@ const store = useTransactionStore();
 </script>
 
 <template>
-	<h1>Count is {{ store.count }}</h1>
-	<h2>Double is {{ store.doubleCount }}</h2>
+	<h1>Earnings: {{ store.earnings.map((x) => x.category) }}</h1>
+	<h2>Spendings: {{ store.spendings.map((x) => x.category) }}</h2>
 </template>

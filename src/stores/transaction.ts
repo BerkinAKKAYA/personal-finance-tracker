@@ -1,22 +1,33 @@
 import { defineStore } from 'pinia';
 
+export type TransactionType = 'earning' | 'spending';
+export type Transaction = {
+	type: TransactionType;
+	category: string;
+	amount: number;
+};
+
 export const useTransactionStore = defineStore('transaction', {
 	state: () => {
 		return {
-			count: 0,
+			transactions: [] as Transaction[],
 		};
 	},
 	actions: {
-		addTransaction(amount: number) {
-			this.count += amount;
+		addTransaction(transaction: Transaction) {
+			this.transactions.push(transaction);
 		},
 	},
 	getters: {
-		doubleCount: (state): number => {
-			return state.count * 2;
+		earnings: (state): Transaction[] => {
+			return state.transactions.filter(
+				(transaction) => transaction.type == 'earning'
+			);
 		},
-		doublePlusOne(): number {
-			return this.doubleCount + 1;
+		spendings: (state): Transaction[] => {
+			return state.transactions.filter(
+				(transaction) => transaction.type == 'spending'
+			);
 		},
 	},
 });

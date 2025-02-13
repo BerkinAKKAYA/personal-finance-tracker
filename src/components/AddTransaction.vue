@@ -1,14 +1,27 @@
 <script setup lang="ts">
-type TransactionType = 'earning' | 'spending' | '';
-
 import { ref } from 'vue';
-import { useTransactionStore } from '../stores/transaction';
+import {
+	useTransactionStore,
+	type Transaction,
+	type TransactionType,
+} from '../stores/transaction';
 
 const store = useTransactionStore();
 
 const amount = ref<number>(0);
-const transactionType = ref<TransactionType>('');
+const transactionType = ref<TransactionType | ''>('');
 const transactionCategory = ref<string>('');
+
+function Submit() {
+	if (transactionType.value == '') return;
+
+	const transaction: Transaction = {
+		type: transactionType.value,
+		category: transactionCategory.value,
+		amount: amount.value,
+	};
+	store.addTransaction(transaction);
+}
 </script>
 
 <template>
@@ -28,12 +41,7 @@ const transactionCategory = ref<string>('');
 			v-model="transactionCategory"
 		/>
 
-		<button
-			v-if="transactionCategory != ''"
-			@click="store.addTransaction(amount)"
-		>
-			Send
-		</button>
+		<button v-if="transactionCategory != ''" @click="Submit">Send</button>
 	</div>
 </template>
 

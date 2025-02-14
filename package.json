@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.2.5",
+    "@types/chart.js": "^2.9.41",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "~5.7.2",

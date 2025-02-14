@@ -1,6 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
-import { useTransactionStore } from '../stores/transaction';
+import { useTransactionStore, type Transaction } from '../stores/transaction';
+import Chart from 'primevue/chart';
 
 const MONTH_NAMES = [
 	'January',
@@ -30,13 +31,15 @@ const spendings = computed(() => {
 		),
 	];
 
-	const earnings = [];
-	const spendings = [];
+	const earnings: number[] = [];
+	const spendings: number[] = [];
 
-	for (const x of months) {
-		const [month, year] = x.split('-');
+	for (const data of months) {
+		const [month, year] = data.split('-');
 		const transactions = store.transactions.filter(
-			(x) => x.date.getMonth() == month && x.date.getFullYear() == year
+			(transaction: Transaction) =>
+				transaction.date.getMonth() == parseInt(month) &&
+				transaction.date.getFullYear() == parseInt(year)
 		);
 
 		earnings.push(
@@ -54,7 +57,7 @@ const spendings = computed(() => {
 
 	return {
 		labels: months
-			.map((x) => x.split('-'))
+			.map((x) => x.split('-').map((x) => parseInt(x)))
 			.map(([month, year]) => `${MONTH_NAMES[month]} ${year}`),
 		datasets: [
 			{
@@ -75,5 +78,5 @@ const spendings = computed(() => {
 </script>
 
 <template>
-	<Chart type="bar" :data="spendings" :options="chartOptions" />
+	<Chart type="bar" :data="spendings" />
 </template>

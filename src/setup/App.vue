@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import Header from './components/Header.vue';
-import AddTransaction from './components/AddTransaction.vue';
-import TransactionList from './components/TransactionList.vue';
+import 'primeicons/primeicons.css';
+import Header from '../components/Header.vue';
 </script>
 
 <template>
 	<div class="flex flex-col gap-16">
 		<Header />
-		<AddTransaction />
-		<TransactionList />
+
+		<RouterView />
 	</div>
 </template>
 

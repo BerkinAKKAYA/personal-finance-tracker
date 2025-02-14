@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTransactionStore } from '../stores/transaction';
+import { Button } from 'primevue';
 
 const store = useTransactionStore();
 
-const viewOptions = [
-	{ label: 'All', value: 'all' },
-	{ label: 'Earnings', value: 'earning' },
-	{ label: 'Spendings', value: 'spending' },
-];
 const viewType = ref<'all' | 'earning' | 'spending'>('all');
 
 const tableRows = computed(() => {
@@ -32,15 +28,25 @@ const tableRows = computed(() => {
 <template>
 	<div class="flex justify-center">
 		<div class="card max-w-full w-3xl">
-			<div class="flex justify-center mb-6">
+			<div class="flex justify-between mb-6">
 				<SelectButton
 					v-model="viewType"
-					:options="viewOptions"
+					:options="[
+						{ label: 'All', value: 'all' },
+						{ label: 'Earnings', value: 'earning' },
+						{ label: 'Spendings', value: 'spending' },
+					]"
 					optionLabel="label"
 					optionValue="value"
 					dataKey="label"
 					:allow-empty="false"
 				/>
+
+				<Button
+					icon="pi pi-plus"
+					severity="success"
+					label="Add Transaction"
+				></Button>
 			</div>
 
 			<p v-if="tableRows.length == 0" class="text-center">
@@ -56,6 +62,16 @@ const tableRows = computed(() => {
 					bodyStyle="text-align: right"
 					headerStyle="display: flex; justify-content: end"
 				></Column>
+				<Column class="w-24 !text-end">
+					<template #body="{ data }">
+						<Button
+							icon="pi pi-trash"
+							@click="console.log(data)"
+							severity="danger"
+							rounded
+						></Button>
+					</template>
+				</Column>
 			</DataTable>
 		</div>
 	</div>

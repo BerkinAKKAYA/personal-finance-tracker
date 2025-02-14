@@ -15,6 +15,8 @@ declare module 'vue' {
     DatePicker: typeof import('primevue/datepicker')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('primevue/select')['default']
     SelectButton: typeof import('primevue/selectbutton')['default']
     TransactionList: typeof import('./src/components/TransactionList.vue')['default']

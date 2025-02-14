@@ -4,16 +4,23 @@ import { useTransactionStore, type Transaction } from '../stores/transaction';
 import { Button } from 'primevue';
 import AddTransaction from '../components/AddTransaction.vue';
 import AddTestData from '../components/AddTestData.vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { GenerateOptionsForType } from '../data/CategoryOptions';
 
 const store = useTransactionStore();
-const typeFilter = ref<'all' | 'earning' | 'spending'>('all');
+
+const filterType = ref(''); // TODO
+const filterCategory = ref('');
 
 const tableData = computed<Transaction[]>(() => {
-	let data: Transaction[] = [];
-	if (typeFilter.value == 'all') {
-		data = store.transactions;
-	} else {
-		data = store.transactions.filter((tx) => tx.type == typeFilter.value);
+	let data = store.transactions;
+
+	if (filterType.value != '') {
+		data = data.filter((tx) => tx.type == filterType.value);
+	}
+
+	if (filterCategory.value != '') {
+		data = data.filter((tx) => tx.category == filterCategory.value);
 	}
 
 	return data;
@@ -35,24 +42,31 @@ const showAddTransactionPopup = ref(false);
 function removeTransaction(id: any) {
 	store.removeTransaction(id);
 }
+
+const filters = ref({
+	category: { value: '', matchMode: FilterMatchMode.CONTAINS },
+});
+
+const categoryKeys = computed(() => {
+	const earnings = GenerateOptionsForType(store.transactions, 'earning');
+	const spendings = GenerateOptionsForType(store.transactions, 'spending');
+
+	switch (filterType.value) {
+		case '':
+			return [...earnings, ...spendings];
+		case 'earning':
+			return earnings;
+		case 'spending':
+			return spendings;
+	}
+});
 </script>
 
 <template>
 	<div class="flex justify-center">
 		<div class="card max-w-full w-3xl">
-			<div class="flex justify-between mb-6">
-				<SelectButton
-					v-model="typeFilter"
-					:options="[
-						{ label: 'All', value: 'all' },
-						{ label: 'Earnings', value: 'earning' },
-						{ label: 'Spendings', value: 'spending' },
-					]"
-					optionLabel="label"
-					optionValue="value"
-					dataKey="label"
-					:allow-empty="false"
-				/>
+			<div class="flex justify-between mb-8">
+				<h2 class="text-xl font-semibold">Transaction List</h2>
 
 				<Button
 					icon="pi pi-plus"
@@ -62,12 +76,20 @@ function removeTransaction(id: any) {
 				></Button>
 			</div>
 
-			<p v-if="tableRows.length == 0" class="mt-12 text-center">
-				No transactions yet. Add one above!
-			</p>
+			<DataTable
+				:value="tableRows"
+				size="small"
+				paginator
+				:rows="8"
+				filterDisplay="row"
+				:filters="filters"
+				:globalFilterFields="['category']"
+			>
+				<template #empty>
+					<p class="text-center my-4">No transactions yet</p>
+				</template>
 
-			<DataTable v-else :value="tableRows" size="small" paginator :rows="8">
-				<Column header="Type">
+				<Column header="Type" field="type">
 					<template #body="{ data }">
 						<Tag
 							:value="data.type"
@@ -75,18 +97,46 @@ function removeTransaction(id: any) {
 						/>
 					</template>
 				</Column>
-				<Column field="category" header="Category"></Column>
-				<Column field="date" header="Date" sortable>
+
+				<Column header="Category" field="category" :showFilterMenu="false">
+					<template #body="{ data }">{{ data.category }}</template>
+					<template #filter="{ filterModel }">
+						<Select
+							v-model="filterModel.value"
+							@change="filterCategory = filterModel.value"
+							:options="categoryKeys"
+							placeholder="Select One"
+							style="width: 100%"
+						>
+							<template #option="slotProps">
+								{{ slotProps.option }}
+							</template>
+						</Select>
+					</template>
+					<template #filterclearicon>
+						<Button
+							icon="pi pi-filter-slash"
+							@click="filterCategory = ''"
+							severity="secondary"
+							size="small"
+							rounded
+						></Button>
+					</template>
+				</Column>
+
+				<Column header="Date" field="date" sortable>
 					<template #body="{ data }">
 						{{ data.date.toLocaleDateString('tr-TR') }}
 					</template>
 				</Column>
+
 				<Column
 					field="amount"
 					header="Amount"
 					bodyStyle="text-align: right"
 					headerStyle="display: flex; justify-content: end"
 				></Column>
+
 				<Column class="w-24 !text-end">
 					<template #body="{ data }">
 						<Button

@@ -4,7 +4,7 @@
 
 		<div class="flex gap-12">
 			<RouterLink to="/">Home</RouterLink>
-			<RouterLink to="/about">About</RouterLink>
+			<RouterLink to="/reports">Reports</RouterLink>
 		</div>
 	</header>
 </template>

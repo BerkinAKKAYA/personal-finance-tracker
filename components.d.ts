@@ -11,6 +11,7 @@ declare module 'vue' {
     AddTransaction: typeof import('./src/components/AddTransaction.vue')['default']
     AutoComplete: typeof import('primevue/autocomplete')['default']
     Button: typeof import('primevue/button')['default']
+    Chart: typeof import('primevue/chart')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DatePicker: typeof import('primevue/datepicker')['default']

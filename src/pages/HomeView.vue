@@ -8,8 +8,8 @@ import AddTestData from '../components/AddTestData.vue';
 const store = useTransactionStore();
 const typeFilter = ref<'all' | 'earning' | 'spending'>('all');
 
-const filteredRows = computed<Transaction[]>(() => {
-	let data = [];
+const tableData = computed<Transaction[]>(() => {
+	let data: Transaction[] = [];
 	if (typeFilter.value == 'all') {
 		data = store.transactions;
 	} else {
@@ -20,13 +20,11 @@ const filteredRows = computed<Transaction[]>(() => {
 });
 
 const tableRows = computed(() => {
-	const data = filteredRows.value;
+	const data = tableData.value;
 	const moneyFormatter = new Intl.NumberFormat('en-US');
 
 	return data.map((tx) => ({
-		id: tx.id,
-		category: tx.category,
-		date: new Date(tx.date).toLocaleDateString('tr-TR'),
+		...tx,
 		type: tx.type == 'earning' ? 'Earning' : 'Spending',
 		amount: moneyFormatter.format(tx.amount) + ' TRY',
 	}));
@@ -68,14 +66,7 @@ function removeTransaction(id: any) {
 				No transactions yet. Add one above!
 			</p>
 
-			<DataTable
-				v-else
-				:value="tableRows"
-				size="small"
-				paginator
-				:rows="5"
-				:rowsPerPageOptions="[5, 10, 20, 50]"
-			>
+			<DataTable v-else :value="tableRows" size="small" paginator :rows="8">
 				<Column header="Type">
 					<template #body="{ data }">
 						<Tag
@@ -85,7 +76,11 @@ function removeTransaction(id: any) {
 					</template>
 				</Column>
 				<Column field="category" header="Category"></Column>
-				<Column field="date" header="Date"></Column>
+				<Column field="date" header="Date" sortable>
+					<template #body="{ data }">
+						{{ data.date.toLocaleDateString('tr-TR') }}
+					</template>
+				</Column>
 				<Column
 					field="amount"
 					header="Amount"

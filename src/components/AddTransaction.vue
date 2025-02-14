@@ -5,101 +5,132 @@ import {
 	type Transaction,
 	type TransactionType,
 } from '../stores/transaction';
-import type { AutoCompleteCompleteEvent } from 'primevue';
+import { DatePicker, type AutoCompleteCompleteEvent } from 'primevue';
+import { v4 as uuid } from 'uuid';
+import { GenerateOptions } from '../data/CategoryOptions';
 
-const TRANSACTION_TYPE_OPTIONS = [
-	{ name: 'Earning', value: 'earning' },
-	{ name: 'Spending', value: 'spending' },
-];
-
-const CATEGORY_OPTIONS: Record<TransactionType, string[]> = {
-	earning: ['Salary'],
-	spending: ['Food', 'Entertainment'],
-};
+const props = defineProps({
+	visible: Boolean,
+});
 
 const store = useTransactionStore();
 
+const CATEGORY_OPTIONS = GenerateOptions(store.transactions);
+
 const transactionType = ref<TransactionType>('earning');
 const transactionCategory = ref<string>('');
-const amount = ref<number>(0);
+const transactionAmount = ref<number>(0);
+const transactionDate = ref<Date>(new Date());
 
 watch(transactionType, () => {
 	transactionCategory.value = '';
 });
 
-const items = ref();
-const search = (event: AutoCompleteCompleteEvent) => {
-	items.value = CATEGORY_OPTIONS[transactionType.value].filter((option) => {
-		return option.toLowerCase().startsWith(event.query.toLowerCase());
+const transactionCategoryItems = ref();
+const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
+	const allOfType = CATEGORY_OPTIONS[transactionType.value];
+
+	transactionCategoryItems.value = allOfType.filter((option) => {
+		const optionLowercase = option.toLowerCase();
+		const searchKeyword = event.query.toLowerCase();
+		return optionLowercase.startsWith(searchKeyword);
 	});
 };
 
 function Submit() {
 	const transaction: Transaction = {
+		id: uuid(),
 		type: transactionType.value,
 		category: transactionCategory.value,
-		amount: amount.value,
+		amount: transactionAmount.value,
+		date: transactionDate.value,
 	};
 	store.addTransaction(transaction);
 
 	transactionCategory.value = '';
-	amount.value = 0;
+	transactionAmount.value = 0;
 }
 </script>
 
 <template>
-	<div
-		class="grid gap-3 items-end"
-		style="grid-template-columns: repeat(4, 1fr)"
+	<Dialog
+		v-model:visible="props.visible"
+		header="Add Transaction"
+		modal
+		:close-on-escape="true"
+		:closable="false"
 	>
-		<div class="flex-auto">
-			<label for="transaction-type" class="font-bold block mb-2"> Type </label>
+		<div class="flex items-center gap-4 mb-4">
+			<label for="transaction-type" class="font-semibold w-36">Type</label>
 			<Select
 				inputId="transaction-type"
 				v-model="transactionType"
-				:options="TRANSACTION_TYPE_OPTIONS"
+				:options="[
+					{ name: 'Earning', value: 'earning' },
+					{ name: 'Spending', value: 'spending' },
+				]"
 				optionLabel="name"
 				optionValue="value"
 				placeholder="Transaction Type"
 				fluid
 			/>
 		</div>
-
-		<div class="flex-auto">
-			<label for="transaction-amount" class="font-bold block mb-2">
-				Amount
-			</label>
+		<div class="flex items-center gap-4 mb-4">
+			<label for="transaction-date" class="font-semibold w-36"> Date </label>
+			<DatePicker
+				inputId="transaction-date"
+				v-model="transactionDate"
+				style="width: 100%"
+			/>
+		</div>
+		<div class="flex items-center gap-4 mb-4">
+			<label for="transaction-amount" class="font-semibold w-36">Amount</label>
 			<InputNumber
 				input-id="transaction-amount"
-				v-model="amount"
+				v-model="transactionAmount"
 				mode="currency"
 				currency="TRY"
 				fluid
 				:min="0"
 			/>
 		</div>
-
-		<div class="flex-auto">
-			<label for="transaction-category" class="font-bold block mb-2">
+		<div class="flex items-center gap-4 mb-4">
+			<label for="transaction-category" class="font-semibold w-36">
 				Category
 			</label>
 			<AutoComplete
 				inputId="transaction-category"
 				v-model="transactionCategory"
-				:suggestions="items"
-				@complete="search"
+				:suggestions="transactionCategoryItems"
+				@complete="searchTransactionCategory"
 				dropdown
-				fluid
+				style="width: 100%"
 			/>
 		</div>
-
-		<Button
-			:disabled="transactionCategory === '' || amount <= 0"
-			@click="Submit"
-			label="Add"
-			fluid
-		/>
-	</div>
+		<div class="flex justify-end gap-2">
+			<Button
+				type="button"
+				label="Cancel"
+				severity="secondary"
+				@click="$emit('hide')"
+			></Button>
+			<Button
+				type="button"
+				label="Save"
+				@click="
+					() => {
+						Submit();
+						$emit('hide');
+					}
+				"
+				:disabled="
+					transactionCategory === '' ||
+					transactionAmount <= 0 ||
+					!transactionDate
+				"
+			></Button>
+		</div>
+	</Dialog>
 </template>
 
 <style scoped></style>

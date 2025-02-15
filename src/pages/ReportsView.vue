@@ -78,5 +78,8 @@ const spendings = computed(() => {
 </script>
 
 <template>
-	<Chart type="bar" :data="spendings" />
+	<div class="flex flex-col gap-4">
+		<h2 class="text-xl font-medium">Earnings & Spendings</h2>
+		<Chart type="bar" :data="spendings" style="height: 250px" />
+	</div>
 </template>

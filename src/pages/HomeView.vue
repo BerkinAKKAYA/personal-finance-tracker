@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTransactionStore, type Transaction } from '../stores/transaction';
-import { Button } from 'primevue';
+import {
+	AutoComplete,
+	Button,
+	DatePicker,
+	type AutoCompleteCompleteEvent,
+} from 'primevue';
 import AddTransaction from '../components/AddTransaction.vue';
 import AddTestData from '../components/AddTestData.vue';
 import { FilterMatchMode } from '@primevue/core/api';
@@ -11,6 +16,7 @@ const store = useTransactionStore();
 
 const filterType = ref(''); // TODO
 const filterCategory = ref('');
+const filterDate = ref<Date | null>(null);
 
 const tableData = computed<Transaction[]>(() => {
 	let data = store.transactions;
@@ -21,6 +27,14 @@ const tableData = computed<Transaction[]>(() => {
 
 	if (filterCategory.value != '') {
 		data = data.filter((tx) => tx.category == filterCategory.value);
+	}
+
+	if (filterDate.value != null) {
+		data = data.filter(
+			(tx) =>
+				tx.date.getMonth() == filterDate.value?.getMonth() &&
+				tx.date.getFullYear() == filterDate.value?.getFullYear()
+		);
 	}
 
 	return data;
@@ -60,6 +74,18 @@ const categoryKeys = computed(() => {
 			return spendings;
 	}
 });
+
+const transactionCategoryItems = ref();
+const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
+	const allOfType = categoryKeys.value;
+	if (!allOfType) return;
+
+	transactionCategoryItems.value = allOfType.filter((option) => {
+		const optionLowercase = option.toLowerCase();
+		const searchKeyword = event.query.toLowerCase();
+		return optionLowercase.startsWith(searchKeyword);
+	});
+};
 </script>
 
 <template>
@@ -98,20 +124,29 @@ const categoryKeys = computed(() => {
 					</template>
 				</Column>
 
-				<Column header="Category" field="category" :showFilterMenu="false">
+				<Column
+					header="Category"
+					field="category"
+					:showFilterMenu="false"
+					:show-filter-match-modes="false"
+				>
 					<template #body="{ data }">{{ data.category }}</template>
 					<template #filter="{ filterModel }">
-						<Select
+						<AutoComplete
 							v-model="filterModel.value"
 							@change="filterCategory = filterModel.value"
-							:options="categoryKeys"
 							placeholder="Select One"
 							style="width: 100%"
+							inputId="transaction-category"
+							:suggestions="transactionCategoryItems"
+							@complete="searchTransactionCategory"
+							dropdown
+							forceSelection
 						>
 							<template #option="slotProps">
 								{{ slotProps.option }}
 							</template>
-						</Select>
+						</AutoComplete>
 					</template>
 					<template #filterclearicon>
 						<Button
@@ -124,9 +159,19 @@ const categoryKeys = computed(() => {
 					</template>
 				</Column>
 
-				<Column header="Date" field="date" sortable>
+				<Column header="Date" field="date" sortable :show-filter-menu="false">
 					<template #body="{ data }">
 						{{ data.date.toLocaleDateString('tr-TR') }}
+					</template>
+					<template #filter>
+						<DatePicker
+							view="month"
+							dateFormat="mm/yy"
+							showButtonBar
+							style="width: 180px"
+							v-model="filterDate"
+							placeholder="Select Month"
+						/>
 					</template>
 				</Column>
 

@@ -13,6 +13,7 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     Chart: typeof import('primevue/chart')['default']
     Column: typeof import('primevue/column')['default']
+    Datatable: typeof import('./src/components/Datatable.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
@@ -25,5 +26,6 @@ declare module 'vue' {
     SelectButton: typeof import('primevue/selectbutton')['default']
     Tag: typeof import('primevue/tag')['default']
     TransactionList: typeof import('./src/components/TransactionList.vue')['default']
+    TransactionListTable: typeof import('./src/components/TransactionListTable.vue')['default']
   }
 }

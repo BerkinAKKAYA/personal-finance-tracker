@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useTransactionStore, type Transaction } from '../stores/transaction';
 import {
 	AutoComplete,
 	Button,
 	DatePicker,
+	Select,
 	type AutoCompleteCompleteEvent,
 } from 'primevue';
 import AddTransaction from '../components/AddTransaction.vue';
@@ -14,15 +15,15 @@ import { GenerateOptionsForType } from '../data/CategoryOptions';
 
 const store = useTransactionStore();
 
-const filterType = ref(''); // TODO
+const filterType = ref('All');
 const filterCategory = ref('');
 const filterDate = ref<Date | null>(null);
 
 const tableData = computed<Transaction[]>(() => {
 	let data = store.transactions;
 
-	if (filterType.value != '') {
-		data = data.filter((tx) => tx.type == filterType.value);
+	if (filterType.value != 'All') {
+		data = data.filter((tx) => tx.type == filterType.value.toLowerCase());
 	}
 
 	if (filterCategory.value != '') {
@@ -58,7 +59,9 @@ function removeTransaction(id: any) {
 }
 
 const filters = ref({
+	type: { value: '', matchMode: FilterMatchMode.CONTAINS },
 	category: { value: '', matchMode: FilterMatchMode.CONTAINS },
+	date: { value: '', matchMode: FilterMatchMode.CONTAINS },
 });
 
 const categoryKeys = computed(() => {
@@ -66,11 +69,11 @@ const categoryKeys = computed(() => {
 	const spendings = GenerateOptionsForType(store.transactions, 'spending');
 
 	switch (filterType.value) {
-		case '':
+		case 'All':
 			return [...earnings, ...spendings];
-		case 'earning':
+		case 'Earning':
 			return earnings;
-		case 'spending':
+		case 'Spending':
 			return spendings;
 	}
 });
@@ -78,7 +81,7 @@ const categoryKeys = computed(() => {
 const transactionCategoryItems = ref();
 const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
 	const allOfType = categoryKeys.value;
-	if (!allOfType) return;
+	if (!allOfType) return [];
 
 	transactionCategoryItems.value = allOfType.filter((option) => {
 		const optionLowercase = option.toLowerCase();
@@ -86,6 +89,17 @@ const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
 		return optionLowercase.startsWith(searchKeyword);
 	});
 };
+
+watch(filterType, () => {
+	filterCategory.value = '';
+
+	const el = document.getElementById(
+		'transaction-category'
+	) as HTMLInputElement;
+	if (el) {
+		el.value = '';
+	}
+});
 </script>
 
 <template>
@@ -115,12 +129,28 @@ const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
 					<p class="text-center my-4">No transactions yet</p>
 				</template>
 
-				<Column header="Type" field="type">
+				<Column
+					header="Type"
+					field="type"
+					:showFilterMenu="false"
+					:showFilterMatchModes="false"
+					:showClearButton="false"
+				>
 					<template #body="{ data }">
 						<Tag
 							:value="data.type"
 							:severity="data.type == 'Earning' ? 'success' : 'danger'"
 						/>
+					</template>
+					<template #filter="{ filterModel }">
+						<Select
+							v-model="filterModel.value"
+							@change="filterType = filterModel.value"
+							:options="['All', 'Earning', 'Spending']"
+							style="width: 135px"
+							defaultValue="All"
+						>
+						</Select>
 					</template>
 				</Column>
 
@@ -128,18 +158,19 @@ const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
 					header="Category"
 					field="category"
 					:showFilterMenu="false"
-					:show-filter-match-modes="false"
+					:showFilterMatchModes="false"
+					:showClearButton="false"
 				>
 					<template #body="{ data }">{{ data.category }}</template>
 					<template #filter="{ filterModel }">
 						<AutoComplete
 							v-model="filterModel.value"
-							@change="filterCategory = filterModel.value"
 							placeholder="Select One"
-							style="width: 100%"
+							style="width: 160px"
 							inputId="transaction-category"
 							:suggestions="transactionCategoryItems"
 							@complete="searchTransactionCategory"
+							@change="filterCategory = filterModel.value"
 							dropdown
 							forceSelection
 						>

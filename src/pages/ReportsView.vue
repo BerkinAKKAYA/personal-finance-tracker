@@ -88,5 +88,8 @@ const spendings = computed(() => {
 .p-chart {
 	display: flex;
 	justify-content: center;
+	height: 250px;
+	max-height: 250px;
+	overflow-y: hidden;
 }
 </style>

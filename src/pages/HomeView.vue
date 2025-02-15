@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useTransactionStore, type Transaction } from '../stores/transaction';
 import {
 	AutoComplete,

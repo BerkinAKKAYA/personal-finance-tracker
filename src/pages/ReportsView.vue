@@ -79,7 +79,14 @@ const spendings = computed(() => {
 
 <template>
 	<div class="flex flex-col gap-4">
-		<h2 class="text-xl font-medium">Earnings & Spendings</h2>
+		<h2 class="text-xl font-medium text-center">Earnings & Spendings</h2>
 		<Chart type="bar" :data="spendings" style="height: 250px" />
 	</div>
 </template>
+
+<style scoped>
+.p-chart {
+	display: flex;
+	justify-content: center;
+}
+</style>

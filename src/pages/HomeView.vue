@@ -16,7 +16,7 @@ import { GenerateOptionsForType } from '../data/CategoryOptions';
 const store = useTransactionStore();
 
 const filterType = ref('All');
-const filterCategory = ref('');
+const filterCategory = ref('All');
 const filterDate = ref<Date | null>(null);
 
 const tableData = computed<Transaction[]>(() => {
@@ -26,7 +26,7 @@ const tableData = computed<Transaction[]>(() => {
 		data = data.filter((tx) => tx.type == filterType.value.toLowerCase());
 	}
 
-	if (filterCategory.value != '') {
+	if (filterCategory.value != 'All') {
 		data = data.filter((tx) => tx.category == filterCategory.value);
 	}
 
@@ -83,15 +83,17 @@ const searchTransactionCategory = (event: AutoCompleteCompleteEvent) => {
 	const allOfType = categoryKeys.value;
 	if (!allOfType) return [];
 
-	transactionCategoryItems.value = allOfType.filter((option) => {
+	const filtered = allOfType.filter((option) => {
 		const optionLowercase = option.toLowerCase();
 		const searchKeyword = event.query.toLowerCase();
 		return optionLowercase.startsWith(searchKeyword);
 	});
+
+	transactionCategoryItems.value = ['All', ...filtered];
 };
 
 watch(filterType, () => {
-	filterCategory.value = '';
+	filterCategory.value = 'All';
 
 	const el = document.getElementById(
 		'transaction-category'
@@ -105,7 +107,9 @@ watch(filterType, () => {
 <template>
 	<div class="flex justify-center">
 		<div class="card max-w-full w-3xl">
-			<div class="flex justify-between mb-8">
+			<div
+				class="flex gap-4 items-center justify-between mb-8 flex-col lg:flex-row"
+			>
 				<h2 class="text-xl font-semibold">Transaction List</h2>
 
 				<Button

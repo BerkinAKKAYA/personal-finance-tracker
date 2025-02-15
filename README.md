@@ -7,3 +7,9 @@
 ---
 
 Live at [Vercel](https://personal-finance-tracker-orcin.vercel.app)
+
+---
+
+**Technologies:** Vue, Vite, Pinia, Vue Router\
+**Design Libraries:** Tailwind, Prime Vue\
+**Testing Library:** Vitest

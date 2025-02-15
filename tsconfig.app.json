@@ -11,5 +11,11 @@
 		"noUncheckedSideEffectImports": true,
 		"noImplicitAny": false
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "vite-env.d.ts"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"src/**/*.vue",
+		"vite-env.d.ts",
+		"src/components/Header.test.js"
+	]
 }
